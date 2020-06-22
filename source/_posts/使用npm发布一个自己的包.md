@@ -122,3 +122,5 @@ I need number~
 如果报错了有可能是包的名字已存在了，所以事先先到官网里收一下名字是不是重复，或者使用`npm view <pkg>`命令来搜索名字是否存在
 
 发布成功之后就可以像test.js中那样在别的项目中引用啦
+
+[项目地址](https://github.com/summerChicken8Write/npm-publish-example)
