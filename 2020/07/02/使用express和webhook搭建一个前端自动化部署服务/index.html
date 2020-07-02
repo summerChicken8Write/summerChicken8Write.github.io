@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>使用express和webhook搭建一个前端自动化部署服务 | GL的前端笔记</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前言在传统的前端开发流程中，我们完成本地的开发工作后需要将代码部署到服务器上。拿react为例，如果你使用的脚手架是create-react-app，在执行npm run build后，webpack会将代码打包在&#x2F;build文件夹中，然后可以用Xftp等工具将文件夹中的代码上传到服务器中相应目录中（也可以在服务器中将代码pull下来，在服务器打包），然后用户就可以访问我们的网页。 但是，这个过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用express和webhook搭建一个前端自动化部署服务">
+<meta property="og:url" content="http://yoursite.com/2020/07/02/%E4%BD%BF%E7%94%A8express%E5%92%8Cwebhook%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E6%9C%8D%E5%8A%A1/index.html">
+<meta property="og:site_name" content="GL的前端笔记">
+<meta property="og:description" content="前言在传统的前端开发流程中，我们完成本地的开发工作后需要将代码部署到服务器上。拿react为例，如果你使用的脚手架是create-react-app，在执行npm run build后，webpack会将代码打包在&#x2F;build文件夹中，然后可以用Xftp等工具将文件夹中的代码上传到服务器中相应目录中（也可以在服务器中将代码pull下来，在服务器打包），然后用户就可以访问我们的网页。 但是，这个过程">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2020/07/02/C9EtdKJ8XQSNjMl.png">
+<meta property="og:image" content="https://i.loli.net/2020/07/02/zPCacbTqZNYenEg.png">
+<meta property="og:image" content="https://i.loli.net/2020/07/02/k7vuzBZ4tsgXQJc.png">
+<meta property="og:image" content="https://i.loli.net/2020/07/02/EAPyisqHhVvLYkn.png">
+<meta property="og:image" content="https://i.loli.net/2020/07/02/ekalfWiQBnUhsRH.png">
+<meta property="article:published_time" content="2020-07-02T05:54:06.000Z">
+<meta property="article:modified_time" content="2020-07-02T08:40:43.740Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="express">
+<meta property="article:tag" content="node">
+<meta property="article:tag" content="部署">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/07/02/C9EtdKJ8XQSNjMl.png">
+  
+    <link rel="alternate" href="/atom.xml" title="GL的前端笔记" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">GL的前端笔记</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-使用express和webhook搭建一个前端自动化部署服务" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/02/%E4%BD%BF%E7%94%A8express%E5%92%8Cwebhook%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E6%9C%8D%E5%8A%A1/" class="article-date">
+  <time datetime="2020-07-02T05:54:06.000Z" itemprop="datePublished">2020-07-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/web%E5%89%8D%E7%AB%AF/">web前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      使用express和webhook搭建一个前端自动化部署服务
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在传统的前端开发流程中，我们完成本地的开发工作后需要将代码部署到服务器上。拿react为例，如果你使用的脚手架是create-react-app，在执行<code>npm run build</code>后，webpack会将代码打包在<code>/build</code>文件夹中，然后可以用Xftp等工具将文件夹中的代码上传到服务器中相应目录中（也可以在服务器中将代码pull下来，在服务器打包），然后用户就可以访问我们的网页。</p>
+<p>但是，这个过程比较繁琐，需要登陆服务器、上传代码、打包等一系列手动操作，如果我们想自动完成这个过程可以选择jenkins等现有方案，也可以自己手动实现一个，其实原理非常简单~~</p>
+<p>这里介绍一下webhook，通俗的讲它就是一个钩子，在你向远端仓库push代码的时候会触发这个钩子，并向你指定的地址发送一个POST请求。然后我们可以部署一个服务，在接收到这个请求时执行一系列操作，例如从远端拉取代码、构建、移动静态资源到指定路径或者打包docker镜像等一系列操作。接下来我们动手实现一下这个功能。</p>
+<h2 id="配置webhook"><a href="#配置webhook" class="headerlink" title="配置webhook"></a>配置webhook</h2><p>首先我们在github上新建一个仓库<br>然后点击设置<br><img src="https://i.loli.net/2020/07/02/C9EtdKJ8XQSNjMl.png" alt="pic1.png"><br>在左边找到webhook<br><img src="https://i.loli.net/2020/07/02/zPCacbTqZNYenEg.png" alt="pic2.png"><br>添加一条新规则<br><img src="https://i.loli.net/2020/07/02/k7vuzBZ4tsgXQJc.png" alt="pic3.png"><br>填写这个表单，分别填写你的服务器地址、发送数据类型、密码和触发钩子的类型<br><img src="https://i.loli.net/2020/07/02/EAPyisqHhVvLYkn.png" alt="pic4.png"></p>
+<h2 id="写测试代码"><a href="#写测试代码" class="headerlink" title="写测试代码"></a>写测试代码</h2><p>现在我们先写一段测试代码验证是否能正常接收到webhook请求</p>
+<p><code>yarn init</code>新建一个项目，<code>yarn add express</code>安装express，然后新建一个<code>server.js</code>作为入口文件，在里边写入如下内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">const express &#x3D; require(&#39;express&#39;)</span><br><span class="line"></span><br><span class="line">const app &#x3D; express()</span><br><span class="line"></span><br><span class="line">const PORT &#x3D; 2333</span><br><span class="line">const HOST &#x3D; &#39;0.0.0.0&#39;</span><br><span class="line"></span><br><span class="line">app.post(&#39;&#x2F;&#39;, (req, res) &#x3D;&gt; &#123;</span><br><span class="line">  console.log(req)</span><br><span class="line"></span><br><span class="line">  res.status(200)</span><br><span class="line">  res.send(&#39;It is ok&#39;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.listen(PORT, HOST)</span><br><span class="line"></span><br><span class="line">console.log(&#96;webhook serve is runing on http:&#x2F;&#x2F;$&#123;HOST&#125;:$&#123;PORT&#125;&#96;)</span><br></pre></td></tr></table></figure>
+
+<p>然后我们把这段代码丢到服务器上，用<code>node server.js</code>来运行它<br>ps: 别忘了在你的服务器上进行配置，开放对应端口的访问权限</p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>回到刚才的github中的webhook选项中，会看到刚才设置的规则列表，点进去，点击按钮，发送一次测试请求，然后在服务器上可以看到请求的信息打印了出来<br><img src="https://i.loli.net/2020/07/02/ekalfWiQBnUhsRH.png" alt="pic5.png"></p>
+<h2 id="接下来"><a href="#接下来" class="headerlink" title="接下来"></a>接下来</h2><p>然后我们就可以在刚才的回调函数中写一些业务逻辑，利用node提供的child_process.exec就可以操作命令行来做原来我们手动处理的事情。</p>
+<p>甚至你可以随意发挥加入请求校验、任务队列或者日志功能等任何你想要的东西</p>
+<p><a href="https://github.com/summerChicken8Write/webhook-watcher" target="_blank" rel="noopener">项目地址</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/07/02/%E4%BD%BF%E7%94%A8express%E5%92%8Cwebhook%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E6%9C%8D%E5%8A%A1/" data-id="ckc4jhxxo0000acbyat024slj" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/express/" rel="tag">express</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%83%A8%E7%BD%B2/" rel="tag">部署</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/06/19/%E4%BD%BF%E7%94%A8npm%E5%8F%91%E5%B8%83%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8C%85/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">使用npm发布一个自己的包</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/web%E5%89%8D%E7%AB%AF/">web前端</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/express/" rel="tag">express</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/" rel="tag">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%83%A8%E7%BD%B2/" rel="tag">部署</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/express/" style="font-size: 10px;">express</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/npm/" style="font-size: 10px;">npm</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">部署</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/02/%E4%BD%BF%E7%94%A8express%E5%92%8Cwebhook%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E6%9C%8D%E5%8A%A1/">使用express和webhook搭建一个前端自动化部署服务</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/19/%E4%BD%BF%E7%94%A8npm%E5%8F%91%E5%B8%83%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8C%85/">使用npm发布一个自己的包</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

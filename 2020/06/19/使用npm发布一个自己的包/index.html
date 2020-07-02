@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>使用npm发布一个自己的包 | GL的前端笔记</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="记录一下npm发布包的过程，方便日后复习。  1、新建一个项目mkdir npm-publish-example 进入目录cd npm-publish-example 初始化yarn init 执行完这个命令后会让你在命令行中填入一些项目基本信息（如：项目名称、版本号、作者等）,如果想用默认值的话一直按回车就行，这个以后可以修改，所以不用担心。 然后我们的项目目录中会生成一个package.js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用npm发布一个自己的包">
+<meta property="og:url" content="http://yoursite.com/2020/06/19/%E4%BD%BF%E7%94%A8npm%E5%8F%91%E5%B8%83%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8C%85/index.html">
+<meta property="og:site_name" content="GL的前端笔记">
+<meta property="og:description" content="记录一下npm发布包的过程，方便日后复习。  1、新建一个项目mkdir npm-publish-example 进入目录cd npm-publish-example 初始化yarn init 执行完这个命令后会让你在命令行中填入一些项目基本信息（如：项目名称、版本号、作者等）,如果想用默认值的话一直按回车就行，这个以后可以修改，所以不用担心。 然后我们的项目目录中会生成一个package.js">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-06-19T06:56:24.000Z">
+<meta property="article:modified_time" content="2020-07-02T08:40:43.741Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="npm">
+<meta property="article:tag" content="webpack">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="GL的前端笔记" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">GL的前端笔记</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-使用npm发布一个自己的包" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/06/19/%E4%BD%BF%E7%94%A8npm%E5%8F%91%E5%B8%83%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8C%85/" class="article-date">
+  <time datetime="2020-06-19T06:56:24.000Z" itemprop="datePublished">2020-06-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/web%E5%89%8D%E7%AB%AF/">web前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      使用npm发布一个自己的包
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>记录一下npm发布包的过程，方便日后复习。</p>
+</blockquote>
+<h2 id="1、新建一个项目"><a href="#1、新建一个项目" class="headerlink" title="1、新建一个项目"></a>1、新建一个项目</h2><p><code>mkdir npm-publish-example</code></p>
+<h3 id="进入目录"><a href="#进入目录" class="headerlink" title="进入目录"></a>进入目录</h3><p><code>cd npm-publish-example</code></p>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p><code>yarn init</code></p>
+<p>执行完这个命令后会让你在命令行中填入一些项目基本信息（如：项目名称、版本号、作者等）,如果想用默认值的话一直按回车就行，这个以后可以修改，所以不用担心。</p>
+<p>然后我们的项目目录中会生成一个<code>package.json</code>文件，打开后可以看到我们刚才输入的信息。</p>
+<h2 id="2、安装依赖"><a href="#2、安装依赖" class="headerlink" title="2、安装依赖"></a>2、安装依赖</h2><p><code>yarn add -D webpack webpack-cli clean-webpack-plugin</code></p>
+<p><code>yarn add</code>表示安装哪些包，<code>-D</code>参数表示这些包只在生产环境中使用。安装完成后<code>package.json</code>会新增如下代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&quot;devDependencies&quot;: &#123;</span><br><span class="line">  &quot;clean-webpack-plugin&quot;: &quot;^3.0.0&quot;,</span><br><span class="line">  &quot;webpack&quot;: &quot;^4.43.0&quot;,</span><br><span class="line">  &quot;webpack-cli&quot;: &quot;^3.3.12&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3、逻辑代码"><a href="#3、逻辑代码" class="headerlink" title="3、逻辑代码"></a>3、逻辑代码</h2><p>我们在项目跟目录下新建一个<code>src</code>目录，并在该目录下新建一个<code>index.js</code>文件，作为打包入口，在<code>index.js</code>中我们写一些逻辑代码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">function double (num) &#123;</span><br><span class="line">  if (typeof num &#x3D;&#x3D;&#x3D; &#39;number&#39;) &#123;</span><br><span class="line">    return num * 2</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    return &#39;I need number~&#39;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module.exports &#x3D; &#123; double &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="4、配置webpack"><a href="#4、配置webpack" class="headerlink" title="4、配置webpack"></a>4、配置webpack</h2><p>首先我们在项目根目录下新建一个<code>webpack.config.js</code>文件，里边写一些打包需要的配置。webpack4已经支持了无配置直接打包，我们为了更灵活的配置选择了用配置文件的方式。配置如下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">const path &#x3D; require(&#39;path&#39;)</span><br><span class="line">const &#123; CleanWebpackPlugin &#125; &#x3D; require(&#39;clean-webpack-plugin&#39;)</span><br><span class="line"></span><br><span class="line">module.exports &#x3D; &#123;</span><br><span class="line">  mode: &#39;none&#39;,</span><br><span class="line">  entry: &#39;.&#x2F;src&#x2F;index.js&#39;,</span><br><span class="line">  output: &#123;</span><br><span class="line">    filename: &#39;tool.js&#39;,</span><br><span class="line">    path: path.resolve(__dirname, &#39;dist&#39;),</span><br><span class="line">    libraryTarget: &#39;umd&#39;,</span><br><span class="line">    globalObject: &#39;this&#39;</span><br><span class="line">  &#125;,</span><br><span class="line">  plugins: [</span><br><span class="line">    new CleanWebpackPlugin()</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>module.exports</code>中导出的对象就是webpack的配置，<code>entry</code>代表打包时的入口，<code>output</code>代表打包出口相关配置，<code>filename</code>和<code>path</code>分别是打包结果的文件名和路径，<code>libraryTarget</code>表示打包后的内容使用那种模块化规范暴露出来，其中<code>umd</code>兼容性最好，<code>globalObject</code>表示打包出来的内容挂在在哪个全局对象中，浏览器环境就是<code>window</code>，node环境就是<code>global</code>，由于上边<code>libraryTarget: &#39;umd&#39;</code>兼容浏览器环境和node环境的模块化规范，所以将<code>globalObject</code>的值设为<code>this</code>。</p>
+<h2 id="5、配置package-json"><a href="#5、配置package-json" class="headerlink" title="5、配置package.json"></a>5、配置package.json</h2><p>目前为止我们完成了大部分工作，下面我们对<code>package.json</code>中的配置进行一下调整。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;npm-publish-example&quot;,</span><br><span class="line">  &quot;version&quot;: &quot;1.0.0&quot;,</span><br><span class="line">  &quot;main&quot;: &quot;dist&#x2F;tool.js&quot;,</span><br><span class="line">  &quot;license&quot;: &quot;ISC&quot;,</span><br><span class="line">  &quot;scripts&quot;: &#123;</span><br><span class="line">    &quot;build&quot;: &quot;webpack --config webpack.config.js&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;devDependencies&quot;: &#123;</span><br><span class="line">    &quot;clean-webpack-plugin&quot;: &quot;^3.0.0&quot;,</span><br><span class="line">    &quot;webpack&quot;: &quot;^4.43.0&quot;,</span><br><span class="line">    &quot;webpack-cli&quot;: &quot;^3.3.12&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们调整了<code>main</code>字段的内容，他代表项目的默认导出路径。并且新增了<code>script</code>字段，这样我们就可以通过执行<code>yarn build</code>命令来打包了，可以不用每次都输入一大段字符。</p>
+<h2 id="6、打包、测试"><a href="#6、打包、测试" class="headerlink" title="6、打包、测试"></a>6、打包、测试</h2><p>我们来执行一下<code>yarn build</code>命令，在根目录下出现了<code>dist/tool.js</code>。</p>
+<p>然后执行<code>yarn link</code>命令进行本地测试，我们在跟目录下新建一个<code>test.js</code>文件输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">const &#123; double &#125; &#x3D; require(&#39;npm-publish-example&#39;)</span><br><span class="line">console.log(double(2));</span><br><span class="line">console.log(double(&#39;hello&#39;));</span><br></pre></td></tr></table></figure>
+<p>执行<code>node test.js</code>，控制台打印出了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ node test.js</span><br><span class="line">4</span><br><span class="line">I need number~</span><br></pre></td></tr></table></figure>
+<p>说明代码正常工作了</p>
+<h2 id="7、发布"><a href="#7、发布" class="headerlink" title="7、发布"></a>7、发布</h2><p>首先我们去npmjs.com注册一个账号，然后通过<code>npm adduser</code>配置账号密码信息，最后执行<code>npm publish</code>发布就可以啦。</p>
+<p>如果报错了有可能是包的名字已存在了，所以事先先到官网里收一下名字是不是重复，或者使用<code>npm view &lt;pkg&gt;</code>命令来搜索名字是否存在</p>
+<p>发布成功之后就可以像test.js中那样在别的项目中引用啦</p>
+<p><a href="https://github.com/summerChicken8Write/npm-publish-example" target="_blank" rel="noopener">项目地址</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/06/19/%E4%BD%BF%E7%94%A8npm%E5%8F%91%E5%B8%83%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8C%85/" data-id="ckc4jhxxt0001acbyh9tvbkor" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/npm/" rel="tag">npm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webpack/" rel="tag">webpack</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/02/%E4%BD%BF%E7%94%A8express%E5%92%8Cwebhook%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E6%9C%8D%E5%8A%A1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          使用express和webhook搭建一个前端自动化部署服务
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/web%E5%89%8D%E7%AB%AF/">web前端</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/express/" rel="tag">express</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/" rel="tag">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%83%A8%E7%BD%B2/" rel="tag">部署</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/express/" style="font-size: 10px;">express</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/npm/" style="font-size: 10px;">npm</a> <a href="/tags/webpack/" style="font-size: 10px;">webpack</a> <a href="/tags/%E9%83%A8%E7%BD%B2/" style="font-size: 10px;">部署</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/02/%E4%BD%BF%E7%94%A8express%E5%92%8Cwebhook%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%89%8D%E7%AB%AF%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E6%9C%8D%E5%8A%A1/">使用express和webhook搭建一个前端自动化部署服务</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/19/%E4%BD%BF%E7%94%A8npm%E5%8F%91%E5%B8%83%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8C%85/">使用npm发布一个自己的包</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
