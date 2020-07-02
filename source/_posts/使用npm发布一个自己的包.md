@@ -1,7 +1,11 @@
 ---
 title: 使用npm发布一个自己的包
 date: 2020-06-19 14:56:24
-tags:
+categories: 
+- web前端
+tags: 
+  - npm
+  - webpack
 ---
 
 > 记录一下npm发布包的过程，方便日后复习。
